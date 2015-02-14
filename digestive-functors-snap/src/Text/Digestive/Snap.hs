@@ -7,23 +7,23 @@ module Text.Digestive.Snap
     , runFormWith
     ) where
 
-import Control.Applicative ((<$>))
-import Control.Monad.Trans (liftIO)
-import Data.Maybe (catMaybes, fromMaybe)
-import System.Directory (copyFile, getTemporaryDirectory)
-import System.FilePath (takeFileName, (</>))
-import qualified Data.Map as M
+import           Control.Applicative          ((<$>))
+import           Control.Monad.Trans          (liftIO)
+import qualified Data.Map                     as M
+import           Data.Maybe                   (catMaybes, fromMaybe)
+import           System.Directory             (copyFile, getTemporaryDirectory)
+import           System.FilePath              (takeFileName, (</>))
 
-import Data.Text (Text)
-import qualified Data.ByteString.Char8 as B
-import qualified Data.Text.Encoding as T
-import qualified Snap.Core as Snap
-import qualified Snap.Util.FileUploads as Snap
+import qualified Data.ByteString.Char8        as B
+import           Data.Text                    (Text)
+import qualified Data.Text.Encoding           as T
+import qualified Snap.Core                    as Snap
+import qualified Snap.Util.FileUploads        as Snap
 
-import Text.Digestive.Form
-import Text.Digestive.Form.Encoding
-import Text.Digestive.Types
-import Text.Digestive.View
+import           Text.Digestive.Form
+import           Text.Digestive.Form.Encoding
+import           Text.Digestive.Types
+import           Text.Digestive.View
 
 type SnapPartPolicy = Snap.PartInfo -> Snap.PartUploadPolicy
 
@@ -63,11 +63,11 @@ snapFiles config = do
         temporaryDirectory config
 
     -- Actually do the work...
-    Snap.handleFileUploads tmpDir (uploadPolicy config) (partPolicy config) $
-        fmap catMaybes . mapM (storeFile tmpDir)
+    fmap catMaybes $ Snap.handleFileUploads tmpDir (uploadPolicy config) (partPolicy config) $
+      (storeFile tmpDir)
   where
-    storeFile _   (_,        Left _)     = return Nothing
-    storeFile tmp (partinfo, Right path) = do
+     storeFile _ _ (Left _) = return Nothing
+     storeFile tmp partinfo (Right path) = do
         let newPath = tmp </> "_" ++ takeFileName path ++
                 maybe "" B.unpack (Snap.partFileName partinfo)
         liftIO $ copyFile path newPath

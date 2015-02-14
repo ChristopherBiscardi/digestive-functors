@@ -61,6 +61,7 @@ import           Control.Monad            (mplus)
 import           Control.Monad.Trans      (MonadIO, liftIO)
 import           Data.Function            (on)
 import           Data.List                (unionBy)
+import           Data.Map.Syntax          (( ## ))
 import           Data.Monoid              (mappend, mconcat, mempty, (<>))
 import           Data.Text                (Text)
 import qualified Data.Text                as T
@@ -526,7 +527,7 @@ dfSubView getView = do
             (ref, _) <- getRefAttributes' tfp node Nothing
             let view' = subView ref view
             putPromise p2 view'
-    res <- withLocalSplices (digestiveSplices (getPromise p2)) noSplices $
+    res <- withLocalSplices (digestiveSplices (getPromise p2)) mempty $
              runNodeList $ X.childNodes node
     return $ action <> res
 
